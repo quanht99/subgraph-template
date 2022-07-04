@@ -1,0 +1,16 @@
+{
+  "name": "ido_factory",
+  "license": "UNLICENSED",
+  "scripts": {
+    "codegen": "graph codegen",
+    "build": "graph build",
+    "deploy": "graph deploy --node https://api.studio.thegraph.com/deploy/ ido_factory",
+    "create-local": "graph create --node http://localhost:8020/ ido_factory",
+    "remove-local": "graph remove --node http://localhost:8020/ ido_factory",
+    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 ido_factory"
+  },
+  "dependencies": {
+    "@graphprotocol/graph-cli": "0.32.0",
+    "@graphprotocol/graph-ts": "0.27.0"
+  }
+}

@@ -1,0 +1,29 @@
+specVersion: 0.0.1
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: PoolFactory
+    network: mumbai
+    source:
+      address: "0x084F81653ed15e95d00bAe482CE26C48085e6833"
+      abi: PoolFactory
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - OwnershipTransferred
+        - PoolCreated
+        - UpdateInformation
+      abis:
+        - name: PoolFactory
+          file: ./abis/PoolFactory.json
+      eventHandlers:
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: PoolCreated(address,indexed address,indexed address,address,indexed address,uint256)
+          handler: handlePoolCreated
+        - event: UpdateInformation(address,address,string,string)
+          handler: handleUpdateInformation
+      file: ./src/pool-factory.ts
