@@ -1,14 +1,14 @@
 specVersion: 0.0.4
 schema:
-    file: ./schema.graphql
+  file: schema.graphql
 dataSources:
   - kind: ethereum
     name: PoolFactory
     network: chapel
     source:
-      address: '0xd41B2be63f3d0960a74F38237F902DF81344A537'
+      address: "0xd41B2be63f3d0960a74F38237F902DF81344A537"
       abi: PoolFactory
-      startBlock: 	21012800
+      startBlock: 21012800
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
@@ -19,9 +19,10 @@ dataSources:
         - UpdateInformation
       abis:
         - name: PoolFactory
-          file: ./abis/PoolFactory.json
+          file: PoolFactory/abis/PoolFactory.json
       eventHandlers:
-        - event: PoolCreated(address,indexed address,indexed address,address,indexed address,uint256)
+        - event: PoolCreated(address,indexed address,indexed address,address,indexed
+            address,uint256)
           handler: handlePoolCreated
         - event: AddAdmin(indexed address)
           handler: handleAddAdmin
@@ -29,7 +30,7 @@ dataSources:
           handler: handleRemoveAdmin
         - event: UpdateAdmin(indexed address,bool)
           handler: handleUpdateAdmin
-      file: ./src/pool-factory.ts
+      file: PoolFactory/PoolFactory.wasm
 templates:
   - name: PoolIDO
     kind: ethereum/contract
@@ -40,12 +41,12 @@ templates:
       kind: ethereum/events
       apiVersion: 0.0.5
       language: wasm/assemblyscript
-      file: ./src/pool-factory.ts
+      file: PoolFactory/PoolFactory.wasm
       entities:
         - BuyTicketEntity
       abis:
         - name: PoolIDO
-          file: ./abis/PoolIDO.json
+          file: PoolIDO/abis/PoolIDO.json
       eventHandlers:
         - event: BuyTicket(indexed address,uint256,uint256,uint256,uint256)
           handler: handleBuyTicket

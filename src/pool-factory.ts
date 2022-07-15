@@ -1,68 +1,65 @@
-import { BigInt } from "@graphprotocol/graph-ts"
 import {
-  PoolFactory,
-  OwnershipTransferred,
   PoolCreated,
-  UpdateInformation
+  UpdateAdmin,
 } from "../generated/PoolFactory/PoolFactory"
-import { ExampleEntity } from "../generated/schema"
+import { PoolIDO } from "../generated/templates"
+import { AdminEntity, BuyTicketEntity, PoolIDOEntity } from "../generated/schema"
+import { BuyTicket } from "../generated/templates/PoolIDO/PoolIDO"
 
-export function handleOwnershipTransferred(event: OwnershipTransferred): void {
-  // Entities can be loaded from the store using a string ID; this ID
-  // needs to be unique across all entities of the same type
-  let entity = ExampleEntity.load(event.transaction.from.toHex())
 
-  // Entities only exist after they have been saved to the store;
-  // `null` checks allow to create entities on demand
-  if (!entity) {
-    entity = new ExampleEntity(event.transaction.from.toHex())
+export function handlePoolCreated(event: PoolCreated): void {
+  PoolIDO.create(event.params.pool)
+  let poolIDO = PoolIDOEntity.load(event.params.pool.toHex())
 
-    // Entity fields can be set using simple assignments
-    entity.count = BigInt.fromI32(0)
+  if (!poolIDO) {
+    poolIDO = new PoolIDOEntity(event.params.pool.toHex())
   }
+  poolIDO.registed_by = event.params.registedBy;
+  poolIDO.token = event.params.token;
+  poolIDO.ticket = event.params.ticket;
+  poolIDO.vesting = event.params.vesting;
+  poolIDO.pool_id = event.params.poolId;
+  poolIDO.created_at = event.block.timestamp;
+  poolIDO.block_number = event.block.number;
+  poolIDO.save()
 
-  // BigInt and BigDecimal math are supported
-  entity.count = entity.count + BigInt.fromI32(1)
-
-  // Entity fields can be set based on event parameters
-  entity.previousOwner = event.params.previousOwner
-  entity.newOwner = event.params.newOwner
-
-  // Entities can be written to the store with `.save()`
-  entity.save()
-
-  // Note: If a handler doesn't require existing field values, it is faster
-  // _not_ to load the entity from the store. Instead, create it fresh with
-  // `new Entity(...)`, set the fields that should be updated and save the
-  // entity back to the store. Fields that were not set or unset remain
-  // unchanged, allowing for partial updates to be applied.
-
-  // It is also possible to access smart contracts from mappings. For
-  // example, the contract that has emitted the event can be connected to
-  // with:
-  //
-  // let contract = Contract.bind(event.address)
-  //
-  // The following functions can then be called on this contract to access
-  // state variables and other data:
-  //
-  // - contract.admin(...)
-  // - contract.allPools(...)
-  // - contract.allPoolsLength(...)
-  // - contract.allTickets(...)
-  // - contract.allTicketsLength(...)
-  // - contract.getCreatedPoolsByToken(...)
-  // - contract.getCreatedPoolsLengthByToken(...)
-  // - contract.getCreatedTicketsByToken(...)
-  // - contract.getPools(...)
-  // - contract.getTickets(...)
-  // - contract.name(...)
-  // - contract.offeredCurrency(...)
-  // - contract.owner(...)
-  // - contract.symbol(...)
-  // - contract.vesting(...)
 }
 
-export function handlePoolCreated(event: PoolCreated): void {}
+export function handleBuyTicket(event: BuyTicket): void {
+  let buyTicket = BuyTicketEntity.load(event.transaction.hash.toHex())
 
-export function handleUpdateInformation(event: UpdateInformation): void {}
+  if (!buyTicket) {
+    buyTicket = new BuyTicketEntity(event.transaction.hash.toHex())
+  }
+
+  if (event.transaction.to) {
+    let pool_ido = PoolIDOEntity.load(event.address.toHex());
+    if (pool_ido) {
+      buyTicket.user = event.params._to;
+      buyTicket.amount = event.params._amount;
+      buyTicket.ticket_id = event.params._id;
+      buyTicket.quantity = event.params._quantity;
+      buyTicket.created_at = event.block.timestamp;
+      buyTicket.block_number = event.block.number;
+      buyTicket.pool_contract = pool_ido.id;
+      buyTicket.save()
+    }
+  }
+
+  
+}
+
+export function handleUpdateAdmin(event: UpdateAdmin): void {
+  let admin = AdminEntity.load(event.params.user.toHex());
+
+  if (!admin) {
+    admin = new AdminEntity(event.params.user.toHex());
+  }
+
+  admin.status = event.params.status;
+  admin.tx_hash = event.transaction.hash;
+  admin.added_by = event.transaction.from;
+  admin.created_at = event.block.timestamp;
+
+  admin.save();
+}
